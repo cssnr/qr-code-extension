@@ -127,9 +127,9 @@ function genQrCode(data, image) {
     const dark = isDark()
     console.log('isDark:', dark)
     // TODO: Add Color Options
-    const dotColor = dark ? '#ec623c' : '#fdca0f'
-    const inCorner = dark ? '#ec623c' : '#fdca0f'
-    const outCorner = dark ? '#fdca0f' : '#ec623c'
+    const dotColor = dark ? '#fdca0f' : '#ec623c'
+    const outCorner = dark ? '#ec623c' : '#fdca0f'
+    const inCorner = dark ? '#fdca0f' : '#ec623c'
     const options = {
         width: 300,
         height: 300,
