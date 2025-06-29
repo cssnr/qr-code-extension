@@ -1,5 +1,6 @@
 const gulp = require('gulp')
 const download = require('gulp-download2')
+const rename = require('gulp-rename')
 
 gulp.task('bootstrap', () => {
     return gulp
@@ -38,15 +39,9 @@ gulp.task('jquery', () => {
         .pipe(gulp.dest('src/dist/jquery'))
 })
 
-// gulp.task('qr-code-styling', () => {
-//     return download([
-//         'https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.min.js',
-//     ]).pipe(gulp.dest('src/dist/qr-code-styling'))
-// })
-
 gulp.task('qr-code-styling', () => {
-    return gulp
-        .src('node_modules/qr-code-styling/lib/qr-code-styling.js')
+    return download(['https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/+esm'])
+        .pipe(rename('qr-code-styling.js'))
         .pipe(gulp.dest('src/dist/qr-code-styling'))
 })
 
