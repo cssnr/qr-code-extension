@@ -1,0 +1,10 @@
+{
+  "permissions": ["sidePanel"],
+  "side_panel": {
+    "default_path": "html/sidepanel.html"
+  },
+  "background": {
+    "service_worker": "js/service-worker.js"
+  },
+  "minimum_chrome_version": "127"
+}

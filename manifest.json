@@ -1,0 +1,71 @@
+{
+  "name": "QR Code Extension",
+  "description": "QR Code Extension.",
+  "homepage_url": "https://github.com/cssnr/qr-code-extension",
+  "author": "Shane",
+  "version": "0.0.1",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "contextMenus",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": ["*://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["js/content-script.js"]
+    }
+  ],
+  "background": { "type": "module" },
+  "options_ui": {
+    "page": "html/options.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "openSidePanel": {
+      "suggested_key": {
+        "default": "Alt+Shift+I"
+      },
+      "description": "Open Side Panel"
+    },
+    "openExtPanel": {
+      "suggested_key": {
+        "default": "Alt+Shift+W"
+      },
+      "description": "Open Extension Panel"
+    },
+    "openPage": {
+      "description": "Open Extension Page"
+    },
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+A"
+      },
+      "description": "Open Popup"
+    },
+    "openOptions": {
+      "description": "Open Options"
+    }
+  },
+  "action": {
+    "default_popup": "html/popup.html",
+    "default_title": "QR Code Extension",
+    "default_icon": {
+      "16": "images/logo16.png",
+      "32": "images/logo32.png",
+      "48": "images/logo48.png",
+      "96": "images/logo96.png",
+      "128": "images/logo128.png"
+    }
+  },
+  "icons": {
+    "16": "images/logo16.png",
+    "32": "images/logo32.png",
+    "48": "images/logo48.png",
+    "96": "images/logo96.png",
+    "128": "images/logo128.png"
+  }
+}

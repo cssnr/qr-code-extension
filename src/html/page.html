@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR Code Extension Page</title>
+    <link rel="icon" href="../images/logo16.png" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../dist/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../dist/fontawesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <script type="text/javascript" src="../js/theme.js"></script>
+</head>
+<body>
+
+<div class="container-fluid p-3">
+    <div class="row">
+        <div class="col-12">
+            <h1>QR Code Extension Page</h1>
+            <div class="d-none my-3 grant-perms" style="width: 300px;">
+                <button class="btn btn-lg btn-success w-100 mb-2 grant-permissions" type="button"
+                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover"
+                        data-bs-title="This Extension Requires Host Permissions to Function.">
+                    <i class="fa-solid fa-check-double me-1"></i> Grant Host Permissions</button>
+                <p class="text-center"><a href="../html/permissions.html">More Information on Permissions</a></p>
+            </div>
+            <div class="d-none my-3 has-perms">
+                <button class="btn btn-link link-danger revoke-permissions" type="button"
+                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover"
+                        data-bs-title="Google Chrome does not allow removing required permissions via this method.">
+                    Remove Host Permissions</button>
+            </div>
+            <p>
+                This is a standard Extension Page. Only use it if you need more than the
+                <a href="../html/options.html">Options Page</a>.
+            </p>
+            <p>This Web Extension implements the following UI elements:</p>
+            <ul>
+                <li><a href="../html/options.html">Options Page</a></li>
+                <li>Toolbar Action <a href="#0" class="open-popup">w/ Popup</a> </li>
+                <li>Extension Page (this page)</li>
+                <li data-mobile-add="d-none"><a href="../html/panel.html">Extension Panel</a></li>
+                <li data-mobile-add="d-none"><a href="../html/sidepanel.html">Sidebar Panel</a></li>
+                <li>Context Menu Items</li>
+                <li>Keyboard Shortcuts</li>
+                <li>Content Script</li>
+                <li>Service Worker</li>
+                <li>Host Permissions</li>
+                <li>Dark/Light Theme Switcher</li>
+                <li>Fully Mobile Compatible</li>
+            </ul>
+            <p>For more information on UI see these resources from Google and Mozilla:</p>
+            <ul>
+                <li><a href="https://developer.chrome.com/docs/extensions/develop/ui" target="_blank" rel="noopener">
+                    https://developer.chrome.com/docs/extensions/develop/ui</a></li>
+                <li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/user_interface" target="_blank" rel="noopener">
+                    https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/user_interface</a></li>
+            </ul>
+        </div>
+    </div>
+</div> <!-- container -->
+
+<button type="button" class="btn btn-outline-primary" id="back-to-top">
+    <i class="fa-regular fa-square-caret-up"></i>
+</button> <!-- back-to-top -->
+
+<div aria-live="polite" aria-atomic="true" class="">
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+</div> <!-- toast -->
+
+<div id="clone" class="d-none">
+    <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+        <div class="toast-body"></div>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" id="bi-dot" viewBox="0 0 16 16">
+        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+    </svg>
+</div> <!-- clone -->
+
+<script type="text/javascript" src="../dist/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="../dist/clipboard/clipboard.min.js"></script>
+<script type="module" src="../js/main.js"></script>
+<script type="module" src="../js/page.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" class="vh-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR Code Extension Side Panel</title>
+    <link rel="icon" href="../images/logo16.png" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../dist/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../dist/fontawesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <script type="text/javascript" src="../js/theme.js"></script>
+</head>
+<body class="d-flex flex-column h-100">
+
+<header class="flex-shrink-0">
+    <div class="container-fluid p-2">
+        <div class="d-flex flex-row align-items-center">
+            <div class="dropdown">
+                <a class="link-body-emphasis text-decoration-none" id="bs-theme-dropdown" title="Theme Switcher" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                    <i id="theme-icon" class="fa-solid fa-circle-half-stroke fa-lg" style="min-width: 20px;"></i> <i class="fa-solid fa-caret-down fa-xs mx-1"></i></a>
+                <ul class="dropdown-menu auto dropdown-menu-end" aria-labelledby="bs-theme-dropdown">
+                    <li><button class="dropdown-item" data-bs-theme-value="dark" aria-pressed="false">
+                        <i class="fa-regular fa-moon" style="min-width: 16px;"></i> <span class="ms-3">Dark</span></button></li>
+                    <li><button class="dropdown-item" data-bs-theme-value="light" aria-pressed="false">
+                        <i class="fa-solid fa-sun" style="min-width: 16px;"></i> <span class="ms-3">Light</span></button></li>
+                    <li><button class="dropdown-item" data-bs-theme-value="auto" aria-pressed="false">
+                        <i class="fa-solid fa-circle-half-stroke" style="min-width: 16px;"></i> <span class="ms-3">Auto</span></button></li>
+                </ul>
+            </div>
+
+            <div class="flex-fill text-center">
+                <a class="link-body-emphasis text-decoration-none fs-4" title="Home Page" href="homepage_url">
+                    <img src="../images/logo32.png" alt="Logo" class="mb-1" style="height: 1.1em;">
+                    QR Code</a>
+                <a class="link-body-emphasis text-decoration-none small" title="Release Notes" href="version_url">
+                    v<span class="version"></span></a>
+            </div>
+
+            <div class="" data-mobile-add="d-none">
+                <a class="btn btn-sm btn-outline-info open-popup" role="button" title="Side Panel">
+                    <i class="fa-solid fa-window-maximize"></i></a>
+            </div>
+            <div class="ms-2">
+                <a class="btn btn-sm btn-outline-info" role="button" href="../html/options.html" title="Options">
+                    <i class="fa-solid fa-gears"></i></a>
+            </div>
+        </div> <!-- d-flex -->
+    </div> <!-- container-fluid -->
+</header>
+
+<hr class="my-0">
+
+<main class="flex-grow-1 p-3">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1>QR Code Extension</h1>
+                <p>It may be possible, that someone, somewhere, may find some use for this panel...</p>
+            </div>
+        </div>
+        <div class="d-grid g-2 gap-2">
+            <kbd id="hostname" class="text-center text-ellipsis d-inline-block w-100">No URL for Tab</kbd>
+            <a class="btn btn-primary d-flex align-items-center hvr-grow-sm open-popup" data-mobile-add="d-none">
+                <i class="fa-solid fa-window-maximize me-1"></i>
+                <span class="flex-fill text-center me-4">Open Popup</span>
+            </a>
+            <a class="btn btn-primary d-flex align-items-center hvr-grow-sm" href="../html/panel.html" data-mobile-add="d-none">
+                <i class="fa-regular fa-window-restore me-1"></i>
+                <span class="flex-fill text-center me-4">Open Extension Panel</span>
+            </a>
+            <a class="btn btn-primary d-flex align-items-center hvr-grow-sm" href="../html/page.html">
+                <i class="fa-regular fa-window-maximize me-1"></i>
+                <span class="flex-fill text-center me-4">Open Extension Page</span>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer class="flex-shrink-0 p-3">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <a class="btn btn-outline-warning hvr-grow-sm w-100 close-panel" role="button">
+                    Close Side Panel <i class="fa-regular fa-circle-xmark ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div aria-live="polite" aria-atomic="true" class="">
+    <div id="toast-container" class="toast-container bottom-0 end-0 p-3"></div>
+</div> <!-- toast -->
+
+<div id="clone" class="d-none">
+    <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="6000">
+        <div class="d-flex">
+            <div class="toast-body text-break small"></div>
+        </div>
+    </div>
+</div> <!-- clone -->
+
+<script type="text/javascript" src="../dist/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="module" src="../js/sidepanel.js"></script>
+
+</body>
+</html>
