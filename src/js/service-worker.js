@@ -31,9 +31,9 @@ async function onInstalled(details) {
         testNumber: 60,
         contextMenu: true,
         showUpdate: false,
-        dotsColor: '#ec633c',
-        outCorner: '#fdca0f',
-        innerCorner: '#ec633c',
+        dotsColor: '#0ecaf0',
+        outCorner: '#0d6efd',
+        innerCorner: '#0ecaf0',
     })
     console.debug('options:', options)
     if (options.contextMenu) {
@@ -41,14 +41,9 @@ async function onInstalled(details) {
     }
     const manifest = chrome.runtime.getManifest()
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        const hasPerms = await checkPerms()
-        if (hasPerms) {
-            // noinspection ES6MissingAwait
-            chrome.runtime.openOptionsPage()
-        } else {
-            const url = chrome.runtime.getURL('/html/permissions.html')
-            await chrome.tabs.create({ active: true, url })
-        }
+        // noinspection ES6MissingAwait
+        chrome.runtime.openOptionsPage()
+        // await chrome.tabs.create({ active: false, url: installURL })
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         if (options.showUpdate) {
             if (manifest.version !== details.previousVersion) {

@@ -44,7 +44,9 @@ hostnameInput.addEventListener('input', debounce(inputChange, 500))
  */
 async function initPopup() {
     console.debug('initPopup')
-    hostnameInput.focus()
+    requestAnimationFrame(() => {
+        hostnameInput.focus()
+    })
     // noinspection ES6MissingAwait
     updateManifest()
     // noinspection ES6MissingAwait

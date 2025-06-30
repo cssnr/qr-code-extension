@@ -1,4 +1,5 @@
 {
+  "optional_host_permissions": ["*://*/*"],
   "permissions": ["sidePanel"],
   "side_panel": {
     "default_path": "html/sidepanel.html"
