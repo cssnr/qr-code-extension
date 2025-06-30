@@ -30,12 +30,12 @@ jobs:
           npm install
 
       - name: "ESLint"
-        if: ${{ steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() }}
         run: |
           npm run lint
 
       - name: "Prettier"
-        if: ${{ steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() }}
         run: |
           npm run prettier
 

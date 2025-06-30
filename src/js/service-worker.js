@@ -2,7 +2,6 @@
 
 import {
     activateOrOpen,
-    checkPerms,
     copyActiveElementText,
     copyActiveImageSrc,
     injectFunction,
