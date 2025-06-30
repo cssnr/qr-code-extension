@@ -1,6 +1,6 @@
 // JS for links.html and options.html
 
-import { showToast } from './export.js'
+import { debounce, showToast } from './export.js'
 
 // noinspection TypeScriptUMDGlobal
 if (typeof ClipboardJS !== 'undefined') {
@@ -47,19 +47,5 @@ function onScroll() {
         backToTop.style.display = 'block'
     } else {
         backToTop.style.display = 'none'
-    }
-}
-
-/**
- * DeBounce Function
- * @function debounce
- * @param {Function} fn
- * @param {Number} timeout
- */
-export function debounce(fn, timeout = 250) {
-    let timeoutID
-    return (...args) => {
-        clearTimeout(timeoutID)
-        timeoutID = setTimeout(() => fn(...args), timeout)
     }
 }

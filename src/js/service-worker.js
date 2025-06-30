@@ -31,6 +31,9 @@ async function onInstalled(details) {
         testNumber: 60,
         contextMenu: true,
         showUpdate: false,
+        dotsColor: '#ec633c',
+        outCorner: '#fdca0f',
+        innerCorner: '#ec633c',
     })
     console.debug('options:', options)
     if (options.contextMenu) {
