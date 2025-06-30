@@ -36,7 +36,7 @@ document
 const qrCodeEl = document.getElementById('qr-code')
 const hostnameInput = document.getElementById('hostname')
 
-hostnameInput.addEventListener('input', debounce(inputChange, 600))
+hostnameInput.addEventListener('input', debounce(inputChange, 500))
 
 /**
  * Initialize Popup
@@ -44,15 +44,14 @@ hostnameInput.addEventListener('input', debounce(inputChange, 600))
  */
 async function initPopup() {
     console.debug('initPopup')
+    hostnameInput.focus()
     // noinspection ES6MissingAwait
     updateManifest()
     // noinspection ES6MissingAwait
     updatePlatform()
-
-    // Update Options
-    const { options } = await chrome.storage.sync.get(['options'])
-    // noinspection ES6MissingAwait
-    updateOptions(options)
+    chrome.storage.sync.get(['options', 'sites']).then((items) => {
+        updateOptions(items.options)
+    })
 
     // Check Host Permissions
     const hasPerms = await checkPerms()
@@ -60,14 +59,10 @@ async function initPopup() {
         console.log('%cHost Permissions Not Granted', 'color: Red')
     }
 
-    hostnameInput.focus()
-
-    // Get Tab Info
+    // Get Site Info
     // TODO: Create a single function to inject and remove from content-script
     const siteInfo = await injectFunction(getSiteInfo)
     console.debug('siteInfo:', siteInfo)
-
-    // Check if Current Tab is Accessible
     if (!siteInfo) {
         document
             .querySelectorAll('.tab-perms')
@@ -75,71 +70,29 @@ async function initPopup() {
         return console.log('%cNo Site Info', 'color: Orange')
     }
 
-    // Process Updates
+    // Process Data
     console.debug('siteInfo.href:', siteInfo.href)
     console.debug('siteInfo.favicon:', siteInfo.favicon)
-
     hostnameInput.value = siteInfo.href
     hostnameInput.setSelectionRange(0, hostnameInput.value.length)
-
-    const qrCode = genQrCode(options, siteInfo.href, siteInfo.favicon)
-    qrCode.append(qrCodeEl)
-    qrCodeEl.addEventListener('click', (e) => {
-        qrCode.download({ name: 'qr-code', extension: 'png' })
-    })
+    await genQrCode(siteInfo.href, siteInfo.favicon)
     // qrCodeEl.querySelector('svg').classList.add('img-fluid')
 }
 
-function getSiteInfo() {
-    const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
-        .map((link) => {
-            const size = link.getAttribute('sizes')
-            const sizeValue = size ? parseInt(size.split('x')[0]) : 0
-            return { href: link.href, size: sizeValue }
-        })
-        .sort((a, b) => b.size - a.size)
-    let favicon
-    if (links.length > 0) {
-        favicon = links[0].href
-    } else {
-        favicon = `${location.origin}/favicon.ico`
-    }
-    return { ...window.location, favicon }
-}
-
-// function getFavIcon() {
-//     const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
-//         .map((link) => {
-//             const size = link.getAttribute('sizes')
-//             const sizeValue = size ? parseInt(size.split('x')[0]) : 0
-//             return { href: link.href, size: sizeValue }
-//         })
-//         .sort((a, b) => b.size - a.size)
-//     // const data = { location: window.location, data: null }
-//     // if (links.length > 0) {
-//     //     data.favicon = links[0].href
-//     // } else {
-//     //     data.favicon = `${location.origin}/favicon.ico`
-//     // }
-//     // return data
-//     return links.length > 0 ? links[0].href : `${location.origin}/favicon.ico`
-// }
-
-function inputChange(event) {
+async function inputChange(event) {
     console.debug('inputChange:', event)
     qrCodeEl.innerHTML = ''
-    const code = genQrCode(hostnameInput.value)
-    code.append(qrCodeEl)
+    await genQrCode(hostnameInput.value)
 }
 
 /**
  * @function genQrCode
- * @param {object} options
  * @param {string} data
  * @param {string} [image]
  * @return {QRCodeStyling}
  */
-function genQrCode(options, data, image) {
+async function genQrCode(data, image) {
+    const { options } = await chrome.storage.sync.get(['options'])
     console.log('genQrCode:', options)
     // const dark = isDark()
     // console.log('isDark:', dark)
@@ -167,5 +120,26 @@ function genQrCode(options, data, image) {
     //     mode: 'Byte',
     //     errorCorrectionLevel: 'Q',
     // }
-    return new QRCodeStyling(styleOptions)
+    const qrCode = new QRCodeStyling(styleOptions)
+    qrCode.append(qrCodeEl)
+    qrCodeEl.onclick = () => {
+        qrCode.download({ name: 'qr-code', extension: 'png' })
+    }
+}
+
+function getSiteInfo() {
+    const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
+        .map((link) => {
+            const size = link.getAttribute('sizes')
+            const sizeValue = size ? parseInt(size.split('x')[0]) : 0
+            return { href: link.href, size: sizeValue }
+        })
+        .sort((a, b) => b.size - a.size)
+    let favicon
+    if (links.length > 0) {
+        favicon = links[0].href
+    } else {
+        favicon = `${location.origin}/favicon.ico`
+    }
+    return { ...window.location, favicon }
 }
