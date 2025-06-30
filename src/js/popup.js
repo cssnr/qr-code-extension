@@ -2,15 +2,16 @@
 
 import {
     checkPerms,
+    debounce,
     grantPerms,
     injectFunction,
+    isDark,
     linkClick,
     saveOptions,
     updateManifest,
     updateOptions,
     updatePlatform,
 } from './export.js'
-import { debounce } from './main.js'
 import QRCodeStyling from '../dist/qr-code-styling/qr-code-styling.js'
 
 document.addEventListener('DOMContentLoaded', initPopup)
@@ -34,14 +35,8 @@ document
 
 const qrCodeEl = document.getElementById('qr-code')
 const hostnameInput = document.getElementById('hostname')
-hostnameInput.addEventListener('input', debounce(inputChange, 600))
 
-function inputChange(event) {
-    console.debug('inputChange:', event)
-    qrCodeEl.innerHTML = ''
-    const code = genQrCode(hostnameInput.value)
-    code.append(qrCodeEl)
-}
+hostnameInput.addEventListener('input', debounce(inputChange, 500))
 
 /**
  * Initialize Popup
@@ -49,14 +44,12 @@ function inputChange(event) {
  */
 async function initPopup() {
     console.debug('initPopup')
+    hostnameInput.focus()
     // noinspection ES6MissingAwait
     updateManifest()
     // noinspection ES6MissingAwait
     updatePlatform()
-
-    // Update Options
-    chrome.storage.sync.get(['options']).then((items) => {
-        console.debug('options:', items.options)
+    chrome.storage.sync.get(['options', 'sites']).then((items) => {
         updateOptions(items.options)
     })
 
@@ -66,55 +59,30 @@ async function initPopup() {
         console.log('%cHost Permissions Not Granted', 'color: Red')
     }
 
-    // Get Tab Info
+    // Get Site Info
     // TODO: Create a single function to inject and remove from content-script
-    const siteInfo = await injectFunction(() => {
-        return { ...window.location, favicon: getLargestFaviconUrl() }
-    })
+    const siteInfo = await injectFunction(getSiteInfo)
     console.debug('siteInfo:', siteInfo)
-
-    // Check if Current Tab is Accessible
-    if (!siteInfo?.href) {
+    if (!siteInfo) {
         document
             .querySelectorAll('.tab-perms')
             .forEach((el) => el.classList.add('d-none'))
-        return console.log('%cNo Tab Permissions', 'color: Orange')
+        return console.log('%cNo Site Info', 'color: Orange')
     }
 
+    // Process Data
     console.debug('siteInfo.href:', siteInfo.href)
     console.debug('siteInfo.favicon:', siteInfo.favicon)
-
     hostnameInput.value = siteInfo.href
-    hostnameInput.focus()
     hostnameInput.setSelectionRange(0, hostnameInput.value.length)
-
-    const code = genQrCode(siteInfo.href, siteInfo.favicon)
-    code.append(qrCodeEl)
+    await genQrCode(siteInfo.href, siteInfo.favicon)
     // qrCodeEl.querySelector('svg').classList.add('img-fluid')
+}
 
-    // // Update Site Data
-    // try {
-    //     // noinspection JSUnresolvedReference
-    //     hostnameInput.textContent = siteInfo.hostname
-    //     // noinspection JSUnresolvedReference
-    //     console.debug('%c hostname:', 'color: Lime', siteInfo.hostname)
-    //     document.getElementById('toggle-site').disabled = false
-    // } catch (e) {
-    //     console.warn(e)
-    //     showToast(e.message, 'danger')
-    // }
-
-    // const [tab] = await chrome.tabs.query({ currentWindow: true, active: true })
-    // console.debug('tab:', tab)
-
-    // const tabs = await chrome.tabs.query({ highlighted: true })
-    // console.log('tabs:', tabs)
-
-    // const views = chrome.extension.getViews()
-    // console.log('views:', views)
-
-    // const platform = await chrome.runtime.getPlatformInfo()
-    // console.debug('platform:', platform)
+async function inputChange(event) {
+    console.debug('inputChange:', event)
+    qrCodeEl.innerHTML = ''
+    await genQrCode(hostnameInput.value)
 }
 
 /**
@@ -123,41 +91,55 @@ async function initPopup() {
  * @param {string} [image]
  * @return {QRCodeStyling}
  */
-function genQrCode(data, image) {
-    const dark = isDark()
-    console.log('isDark:', dark)
-    // TODO: Add Color Options
-    const dotColor = dark ? '#fdca0f' : '#ec623c'
-    const outCorner = dark ? '#ec623c' : '#fdca0f'
-    const inCorner = dark ? '#fdca0f' : '#ec623c'
-    const options = {
+async function genQrCode(data, image) {
+    const { options } = await chrome.storage.sync.get(['options'])
+    console.log('genQrCode:', options)
+    // const dark = isDark()
+    // console.log('isDark:', dark)
+    // const dotColor = dark ? '#fdca0f' : '#ec623c'
+    // const outCorner = dark ? '#ec623c' : '#fdca0f'
+    // const inCorner = dark ? '#fdca0f' : '#ec623c'
+    const styleOptions = {
         width: 300,
         height: 300,
         type: 'canvas',
         data: data,
         image: image,
         margin: 0,
-        dotsOptions: { color: dotColor, type: 'dots' },
-        cornersDotOptions: { color: inCorner, type: 'dot' },
-        cornersSquareOptions: { color: outCorner, type: 'extra-rounded' },
-        backgroundOptions: { color: 'transparent' },
+        dotsOptions: { color: options.dotsColor, type: 'dots' },
+        cornersDotOptions: { color: options.innerCorner, type: 'dot' },
+        cornersSquareOptions: {
+            color: options.outCorner,
+            type: 'extra-rounded',
+        },
+        backgroundOptions: { color: isDark() ? '#212429' : '#fff' },
         imageOptions: { crossOrigin: 'anonymous', imageSize: 0.2, margin: 1 },
     }
-    // options.qrOptions = {
+    // styleOptions.qrOptions = {
     //     typeNumber: 0,
     //     mode: 'Byte',
     //     errorCorrectionLevel: 'Q',
     // }
-    return new QRCodeStyling(options)
+    const qrCode = new QRCodeStyling(styleOptions)
+    qrCode.append(qrCodeEl)
+    qrCodeEl.onclick = () => {
+        qrCode.download({ name: 'qr-code', extension: 'png' })
+    }
 }
 
-function isDark() {
-    let theme = localStorage.getItem('theme')
-    if (theme !== 'dark' && theme !== 'light') {
-        theme = window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light'
+function getSiteInfo() {
+    const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
+        .map((link) => {
+            const size = link.getAttribute('sizes')
+            const sizeValue = size ? parseInt(size.split('x')[0]) : 0
+            return { href: link.href, size: sizeValue }
+        })
+        .sort((a, b) => b.size - a.size)
+    let favicon
+    if (links.length > 0) {
+        favicon = links[0].href
+    } else {
+        favicon = `${location.origin}/favicon.ico`
     }
-    console.log('theme:', theme)
-    return theme === 'dark'
+    return { ...window.location, favicon }
 }

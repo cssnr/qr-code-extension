@@ -3,6 +3,7 @@
 import {
     checkPerms,
     grantPerms,
+    isDark,
     linkClick,
     onAdded,
     onRemoved,
@@ -50,6 +51,15 @@ document.getElementById('chrome-shortcuts').addEventListener('click', () => {
     chrome.tabs.update({ url: 'chrome://extensions/shortcuts' })
 })
 
+window.addEventListener('storage', (event) => {
+    if (event.key === 'theme') {
+        console.log('theme:', event.newValue)
+        Coloris({
+            themeMode: isDark(event.newValue) ? 'dark' : 'light',
+        })
+    }
+})
+
 /**
  * Initialize Options
  * @function initOptions
@@ -67,7 +77,12 @@ async function initOptions() {
     // noinspection ES6MissingAwait
     setShortcuts()
     chrome.storage.sync.get(['options']).then((items) => {
-        updateOptions(items.options)
+        updateOptions(items.options).then(() => {
+            Coloris({
+                themeMode: isDark() ? 'dark' : 'light',
+                alpha: false,
+            })
+        })
     })
 }
 
@@ -81,6 +96,7 @@ function onChanged(changes, namespace) {
     console.debug('onChanged:', changes, namespace)
     for (const [key, { newValue }] of Object.entries(changes)) {
         if (namespace === 'sync' && key === 'options') {
+            // noinspection JSIgnoredPromiseFromCall
             updateOptions(newValue)
         }
     }

@@ -51,7 +51,7 @@ export async function saveOptions(event) {
  * @function initOptions
  * @param {Object} options
  */
-export function updateOptions(options) {
+export async function updateOptions(options) {
     console.debug('updateOptions:', options)
     for (let [key, value] of Object.entries(options)) {
         if (typeof value === 'undefined') {
@@ -77,6 +77,10 @@ export function updateOptions(options) {
         }
         if (el.dataset.related) {
             hideShowElement(`#${el.dataset.related}`, value)
+        }
+        if (typeof el.dataset.coloris !== 'undefined') {
+            console.debug('dataset.coloris:', el.id)
+            el.dispatchEvent(new Event('input', { bubbles: true }))
         }
     }
 }
@@ -540,4 +544,32 @@ export function copyActiveImageSrc(ctx) {
     // }
     // console.log('img.src:', img.src)
     // navigator.clipboard.writeText(img.src).then()
+}
+
+/**
+ * DeBounce Function
+ * @function debounce
+ * @param {Function} fn
+ * @param {Number} timeout
+ */
+export function debounce(fn, timeout = 250) {
+    let timeoutID
+    return (...args) => {
+        clearTimeout(timeoutID)
+        timeoutID = setTimeout(() => fn(...args), timeout)
+    }
+}
+
+export function isDark(theme) {
+    console.log('isDark:', theme)
+    if (!theme) {
+        theme = localStorage.getItem('theme')
+    }
+    if (theme !== 'dark' && theme !== 'light') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+    }
+    console.log('isDark:', theme)
+    return theme === 'dark'
 }

@@ -4,9 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>QR Code Extension Options</title>
-    <link rel="icon" href="../images/logo16.png" sizes="any">
+    <link rel="icon" href="../images/favicon.ico" sizes="any">
     <link rel="stylesheet" type="text/css" href="../dist/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="../dist/fontawesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../dist/coloris/coloris.min.css">
     <link rel="stylesheet" type="text/css" href="../css/main.css">
     <link rel="stylesheet" type="text/css" href="../css/options.css">
     <script type="text/javascript" src="../js/theme.js"></script>
@@ -57,22 +58,44 @@
     </div>
 
     <form class="options">
+        <!--<div class="row mb-2">-->
+        <!--    <div class="col-12 col-sm-8 mb-2">-->
+        <!--        <label for="testInput" class="form-label"><i class="fa-regular fa-keyboard me-1"></i> Test Input</label>-->
+        <!--        <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Text Input."></i>-->
+        <!--        <input id="testInput" aria-describedby="testInputHelp" type="text" class="form-control" autocomplete="off">-->
+        <!--        <div class="form-text" id="testInputHelp">Just a test text input.</div>-->
+        <!--    </div>-->
+        <!--    <div class="col-12 col-sm-4  mb-2">-->
+        <!--        <label for="testNumber" class="form-label"><i class="fa-solid fa-hashtag me-1"></i> Number</label>-->
+        <!--        <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Number Input."></i>-->
+        <!--        <input id="testNumber" aria-describedby="testNumberHelp" type="number" step="5" min="5" max="360" class="form-control" autocomplete="off" placeholder="Minutes">-->
+        <!--        <div class="form-text" id="testNumberHelp">-->
+        <!--            A number 5-360.-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div> &lt;!&ndash; row &ndash;&gt;-->
+
         <div class="row mb-2">
-            <div class="col-12 col-sm-8 mb-2">
-                <label for="testInput" class="form-label"><i class="fa-regular fa-keyboard me-1"></i> Test Input</label>
+            <div class="col-12 col-sm-4 mb-2">
+                <label for="dotsColor" class="form-label"><i class="fa-classic fa-solid fa-qrcode me-1"></i> Dots Color</label>
                 <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Text Input."></i>
-                <input id="testInput" aria-describedby="testInputHelp" type="text" class="form-control" autocomplete="off">
-                <div class="form-text" id="testInputHelp">Just a test text input.</div>
+                <input id="dotsColor" type="text" class="form-control" data-coloris>
+                <div class="form-text" id="dotsColorHelp">Main qr code color.</div>
             </div>
-            <div class="col-12 col-sm-4  mb-2">
-                <label for="testNumber" class="form-label"><i class="fa-solid fa-hashtag me-1"></i> Number</label>
-                <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Number Input."></i>
-                <input id="testNumber" aria-describedby="testNumberHelp" type="number" step="5" min="5" max="360" class="form-control" autocomplete="off" placeholder="Minutes">
-                <div class="form-text" id="testNumberHelp">
-                    A number 5-360.
-                </div>
+            <div class="col-12 col-sm-4 mb-2">
+                <label for="outCorner" class="form-label"><i class="fa-classic fa-regular fa-square me-1"></i> Outer Corner</label>
+                <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Text Input."></i>
+                <input id="outCorner" type="text" class="form-control" data-coloris>
+                <div class="form-text" id="outCornerHelp">Outer corner box color.</div>
+            </div>
+            <div class="col-12 col-sm-4 mb-2">
+                <label for="innerCorner" class="form-label"><i class="fa-classic fa-solid fa-circle me-1"></i> Inner Corner</label>
+                <i class="fa-solid fa-circle-info p-1" data-bs-toggle="tooltip" data-bs-title="Example Text Input."></i>
+                <input id="innerCorner" type="text" class="form-control" data-coloris>
+                <div class="form-text" id="innerCornerHelp">Inner corner dot color.</div>
             </div>
         </div> <!-- row -->
+
         <div class="form-check form-switch" data-mobile-add="d-none">
             <input class="form-check-input" id="contextMenu" type="checkbox" role="switch">
             <label class="form-check-label" for="contextMenu">Enable Right Click Menu</label>
@@ -121,32 +144,15 @@
 </div> <!-- d-flex -->
 
 <div id="import-modal" class="modal fade" tabindex="-1" aria-labelledby="import-modal-label" aria-hidden="true">
-<div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal-dialog modal-lg modal-dialog-centered" style="width: 348px;">
 <div class="modal-content">
     <div class="modal-header">
-        <h1 class="modal-title fs-5" id="import-modal-label">Import Credentials</h1>
+        <h1 class="modal-title fs-5" id="import-modal-label">Color Picker</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" tabindex="-1"></button>
     </div> <!-- modal-header -->
-    <div class="modal-body">
-        <div class="">
-            <label for="sites-textarea" class="mb-1">
-                JSON Import <svg class="ms-1"><use xlink:href="#bi-braces" /></svg>
-            </label>
-            <textarea id="sites-textarea" class="form-control" placeholder="Paste text to import here..." style="height: 100px"></textarea>
-            <div class="invalid-feedback"></div>
-<!--            <div>-->
-<!--                For data format, see the <a href="https://github.com/cssnr/auto-auth?tab=readme-ov-file#Migration" target="_blank" rel="noopener">-->
-<!--                Migration Guide</a> on GitHub.-->
-<!--            </div>-->
-        </div>
+    <div class="modal-body m-auto">
+        <div id="picker"></div>
     </div> <!-- modal-body -->
-    <div class="modal-footer">
-        <button type="button" class="btn btn-success me-auto import-export" data-action="text" data-id="sites-textarea">
-            Import<i class="fa-solid fa-cloud-arrow-down ms-2"></i>
-        </button>
-        <button type="button" class="btn btn-outline-warning import-export" data-action="clear" data-id="sites-textarea">Clear</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    </div> <!-- modal-footer -->
 </div> <!-- modal-content -->
 </div> <!-- modal-dialog -->
 </div><!-- import-modal -->
@@ -175,6 +181,7 @@
 <script type="text/javascript" src="../dist/clipboard/clipboard.min.js"></script>
 <script type="text/javascript" src="../dist/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="../dist/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="../dist/coloris/coloris.min.js"></script>
 <script type="module" src="../js/main.js"></script>
 <script type="module" src="../js/options.js"></script>
 

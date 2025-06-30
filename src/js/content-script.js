@@ -28,17 +28,17 @@ async function onChanged(changes, namespace) {
     }
 }
 
-// eslint-disable-next-line no-unused-vars
-function getLargestFaviconUrl() {
-    const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
-        .map((link) => {
-            const size = link.getAttribute('sizes')
-            const sizeValue = size ? parseInt(size.split('x')[0]) : 0
-            return { href: link.href, size: sizeValue }
-        })
-        .sort((a, b) => b.size - a.size)
-
-    if (links.length > 0) return links[0].href
-
-    return `${location.origin}/favicon.ico`
-}
+// // eslint-disable-next-line no-unused-vars
+// function getLargestFaviconUrl() {
+//     const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
+//         .map((link) => {
+//             const size = link.getAttribute('sizes')
+//             const sizeValue = size ? parseInt(size.split('x')[0]) : 0
+//             return { href: link.href, size: sizeValue }
+//         })
+//         .sort((a, b) => b.size - a.size)
+//
+//     if (links.length > 0) return links[0].href
+//
+//     return `${location.origin}/favicon.ico`
+// }
