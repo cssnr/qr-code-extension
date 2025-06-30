@@ -17,6 +17,15 @@ gulp.task('clipboard', () => {
         .pipe(gulp.dest('src/dist/clipboard'))
 })
 
+gulp.task('coloris', () => {
+    return gulp
+        .src([
+            'node_modules/@melloware/coloris/dist/coloris.min.css',
+            'node_modules/@melloware/coloris/dist/umd/coloris.min.js',
+        ])
+        .pipe(gulp.dest('src/dist/coloris'))
+})
+
 gulp.task('fontawesome', () => {
     return gulp
         .src(
@@ -50,6 +59,7 @@ gulp.task(
     gulp.parallel(
         'bootstrap',
         'clipboard',
+        'coloris',
         'fontawesome',
         'jquery',
         'qr-code-styling'
