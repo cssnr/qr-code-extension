@@ -10,6 +10,8 @@ import {
     updatePlatform,
 } from './export.js'
 
+// chrome.runtime.onMessage.addListener(onMessage)
+
 document.addEventListener('DOMContentLoaded', initPopup)
 // noinspection JSCheckFunctionSignatures
 document
@@ -47,19 +49,12 @@ async function initPopup() {
         updateOptions(items.options)
     })
 
-    // // Check Permissions
-    // const hasPerms = await checkPerms()
-    // if (!hasPerms) {
-    //     console.log('%c Permissions Not Granted', 'color: Orange')
-    // }
-
     const [tab] = await chrome.tabs.query({
         currentWindow: true,
         active: true,
     })
     console.debug('url:', tab.url)
     console.debug('favIconUrl:', tab.favIconUrl)
-
     if (!tab.url) {
         return console.debug('%c initPopup - No: tab.url', 'color: Red')
     }
@@ -79,3 +74,16 @@ async function inputChange(event) {
     console.debug('inputChange:', event)
     await genQrCode(qrCodeEl, hostnameInput.value)
 }
+
+// /**
+//  * On Message Callback
+//  * @function onMessage
+//  * @param {Object} message
+//  */
+// function onMessage(message) {
+//     console.debug('popup: onMessage:', message)
+//     if (message.type === 'loadData') {
+//         console.debug('%c onMessage - genQrCode()', 'color: Yellow')
+//         genQrCode(qrCodeEl, message.data)
+//     }
+// }
