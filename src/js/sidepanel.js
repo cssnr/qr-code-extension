@@ -1,9 +1,25 @@
 // JS for sidepanel.html
 
-import { linkClick, openPopup, updateManifest } from './export.js'
+import {
+    checkPerms,
+    genQrCode,
+    grantPerms,
+    linkClick,
+    onAdded,
+    onRemoved,
+    openPopup,
+    updateManifest,
+} from './export.js'
 
+chrome.permissions.onAdded.addListener(onAdded)
+chrome.permissions.onRemoved.addListener(onRemoved)
+chrome.runtime.onMessage.addListener(onMessage)
 chrome.tabs.onActivated.addListener(onActivated)
+
 document.addEventListener('DOMContentLoaded', domContentLoaded)
+document
+    .querySelectorAll('.grant-permissions')
+    .forEach((el) => el.addEventListener('click', (e) => grantPerms(e)))
 document
     .querySelectorAll('a[href]')
     .forEach((el) => el.addEventListener('click', linkClick))
@@ -14,7 +30,10 @@ document
     .querySelectorAll('.close-panel')
     .forEach((el) => el.addEventListener('click', closePanel))
 
-const hostnameEl = document.getElementById('hostname')
+const qrCodeEl = document.getElementById('qr-code')
+const hostnameInput = document.getElementById('hostname')
+
+let currentUrl
 
 /**
  * DOMContentLoaded
@@ -23,12 +42,11 @@ const hostnameEl = document.getElementById('hostname')
 async function domContentLoaded() {
     console.debug('domContentLoaded')
     // noinspection ES6MissingAwait
+    checkPerms()
+    // noinspection ES6MissingAwait
     updateManifest()
     // noinspection ES6MissingAwait
     tabChange()
-
-    // const { options } = await chrome.storage.sync.get(['options'])
-    // console.debug('options:', options)
 }
 
 /**
@@ -48,6 +66,17 @@ async function closePanel(event) {
     }
 }
 
+function onMessage(message) {
+    console.debug('onMessage:', message)
+    if (message.type === 'onUpdated') {
+        console.debug('%c onMessage - tabChange()', 'color: Yellow')
+        console.debug('message.changeInfo:', message.changeInfo)
+        console.debug('message.tab:', message.tab)
+        // noinspection JSIgnoredPromiseFromCall
+        tabChange(message.tab)
+    }
+}
+
 /**
  * Tab Change Callback
  * @function onActivated
@@ -60,7 +89,7 @@ async function onActivated(activeInfo) {
     if (window.id !== activeInfo.windowId) {
         return console.debug('Tab Change - Different Window.')
     }
-    console.debug('%c Tab Change - Update Tab Data.', 'color: Lime')
+    console.debug('%c onActivated - tabChange()', 'color: Lime')
     // noinspection ES6MissingAwait
     tabChange()
 }
@@ -68,17 +97,35 @@ async function onActivated(activeInfo) {
 /**
  * Process Tab Changes
  * @function tabChange
+ * @param {chrome.tabs.Tab} [sourceTab]
  */
-async function tabChange() {
+async function tabChange(sourceTab) {
     const [tab] = await chrome.tabs.query({
         currentWindow: true,
         active: true,
     })
-    console.debug('tab:', tab)
-    console.debug('tab.url:', tab.url)
+    if (sourceTab && tab.windowId !== sourceTab.windowId) {
+        console.debug(`${tab.windowId} != ${sourceTab.windowId}`)
+        console.debug('%c tabChange Rejected - DIFFERENT WINDOW', 'color: Red')
+        return
+    }
+    if (!tab.url) {
+        hostnameInput.textContent = 'No URL for Tab'
+        console.debug('%c tabChange Rejected - NO URL', 'color: Red')
+        return
+    }
+    if (tab.url === currentUrl) {
+        console.debug('%c tabChange Rejected - URL NOT CHANGE', 'color: Red')
+        return
+    }
+    currentUrl = tab.url
+    // console.debug('tab:', tab)
+    // console.debug('tab.url:', tab.url)
     if (tab.url) {
-        hostnameEl.textContent = tab.url
+        hostnameInput.textContent = tab.url
+        genQrCode(qrCodeEl, tab.url)
     } else {
-        hostnameEl.textContent = 'No URL for Tab'
+        qrCodeEl.innerHTML = ''
+        hostnameInput.textContent = 'No URL for Tab'
     }
 }

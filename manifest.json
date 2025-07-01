@@ -12,6 +12,7 @@
     "scripting",
     "storage"
   ],
+  "optional_permissions": ["tabs"],
   "background": { "type": "module" },
   "options_ui": {
     "page": "html/options.html",

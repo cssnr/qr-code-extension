@@ -1,5 +1,4 @@
 {
-  "optional_permissions": ["*://*/*"],
   "sidebar_action": {
     "default_panel": "html/sidepanel.html",
     "default_title": "QR Code Extension",

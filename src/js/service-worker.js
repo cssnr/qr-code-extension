@@ -18,6 +18,50 @@ chrome.commands?.onCommand.addListener(onCommand)
 chrome.runtime.onMessage.addListener(onMessage)
 chrome.storage.onChanged.addListener(onChanged)
 
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    // console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
+    if (!changeInfo.url) return
+    console.debug(`changeInfo:`, changeInfo)
+    if (changeInfo.url === 'about:newtab') return
+    // if (changeInfo.status === 'loading') return
+
+    chrome.runtime.sendMessage({
+        type: 'onUpdated',
+        changeInfo: changeInfo,
+        tab: tab,
+    })
+
+    // console.debug('changeInfo.url:', changeInfo.url)
+    // if (!changeInfo.url) return
+    //
+    // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    //     console.debug('tab:', tab)
+    //     console.debug('tab.url:', tab.url)
+    //     if (tabs.length && tabs[0].id === tabId) {
+    //         chrome.runtime.sendMessage({
+    //             type: 'urlChanged',
+    //             tab: tab,
+    //             changeInfo: changeInfo,
+    //         })
+    //     }
+    // })
+
+    // chrome.permissions.contains({ permissions: ['tabs'] }, (has) => {
+    //     if (!has) return
+    //
+    //     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    //         console.debug('tab:', tab)
+    //         console.debug('tab.url:', tab.url)
+    //         if (tabs.length && tabs[0].id === tabId) {
+    //             chrome.runtime.sendMessage({
+    //                 type: 'urlChanged',
+    //                 url: changeInfo.url,
+    //             })
+    //         }
+    //     })
+    // })
+})
+
 /**
  * On Installed Callback
  * @function onInstalled
@@ -188,10 +232,13 @@ function onChanged(changes, namespace) {
         if (namespace === 'sync' && key === 'options' && oldValue && newValue) {
             if (oldValue.contextMenu !== newValue.contextMenu) {
                 if (newValue?.contextMenu) {
-                    console.log('%cEnabled contextMenu...', 'color: Lime')
+                    console.log('%c Enabled contextMenu...', 'color: Lime')
                     createContextMenus()
                 } else {
-                    console.log('%cDisabled contextMenu...', 'color: OrangeRed')
+                    console.log(
+                        '%c Disabled contextMenu...',
+                        'color: OrangeRed'
+                    )
                     chrome.contextMenus?.removeAll()
                 }
             }
@@ -246,7 +293,7 @@ function addContext(context) {
             type: context[3] || 'normal',
         })
     } catch (e) {
-        console.log('%cError Adding Context:', 'color: Yellow', e)
+        console.log('%c Error Adding Context:', 'color: Yellow', e)
     }
 }
 

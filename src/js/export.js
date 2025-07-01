@@ -1,5 +1,7 @@
 // JS Exports
 
+import QRCodeStyling from '../dist/qr-code-styling/qr-code-styling.js'
+
 export const githubURL = 'https://github.com/cssnr/qr-code-extension'
 
 /**
@@ -242,13 +244,13 @@ export async function updatePlatform() {
 }
 
 /**
- * Check Host Permissions
+ * Check Permissions
  * @function checkPerms
  * @return {Promise<Boolean>}
  */
 export async function checkPerms() {
     const hasPerms = await chrome.permissions.contains({
-        origins: ['*://*/*'],
+        permissions: ['tabs'],
     })
     console.debug('checkPerms:', hasPerms)
     // Firefox still uses DOM Based Background Scripts
@@ -276,21 +278,10 @@ export async function checkPerms() {
 export async function grantPerms(event, close = false) {
     console.debug('grantPerms:', event)
     // noinspection ES6MissingAwait
-    requestPerms()
+    chrome.permissions.request({ permissions: ['tabs'] })
     if (close) {
         window.close()
     }
-}
-
-/**
- * Request Host Permissions
- * @function requestPerms
- * @return {Promise<Boolean>}
- */
-export async function requestPerms() {
-    return await chrome.permissions.request({
-        origins: ['*://*/*'],
-    })
 }
 
 /**
@@ -305,7 +296,7 @@ export async function revokePerms(event) {
     console.debug('permissions:', permissions)
     try {
         await chrome.permissions.remove({
-            origins: permissions.origins,
+            permissions: ['tabs'],
         })
         await checkPerms()
     } catch (e) {
@@ -444,37 +435,6 @@ export function showToast(message, type = 'primary') {
 }
 
 /**
- * Inject Script into Current Tab
- * @function injectScript
- * @param {Array|String} files
- * @return {Promise<chrome.scripting.InjectionResult.result>}
- */
-export async function injectScript(files) {
-    if (typeof files === 'string') {
-        files = [files]
-    }
-    console.debug('injectScript files:', files)
-    try {
-        const [tab] = await chrome.tabs.query({
-            currentWindow: true,
-            active: true,
-        })
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            files,
-        })
-        console.debug('injectScript results:', results)
-        if (results[0]?.error) {
-            // noinspection JSUnresolvedReference
-            console.log('injectScript error:', results[0].error)
-        }
-        return results[0]?.result
-    } catch (e) {
-        console.log(e)
-    }
-}
-
-/**
  * Inject Function into Current Tab with args
  * @function injectFunction
  * @param {Function} func
@@ -524,7 +484,7 @@ export function copyActiveElementText(ctx) {
     if (text?.length) {
         navigator.clipboard.writeText(text).then()
     } else {
-        console.log('%cNo Text to Copy.', 'color: Yellow')
+        console.log('%c No Text to Copy.', 'color: Yellow')
     }
 }
 
@@ -561,7 +521,6 @@ export function debounce(fn, timeout = 250) {
 }
 
 export function isDark(theme) {
-    console.log('isDark:', theme)
     if (!theme) {
         theme = localStorage.getItem('theme')
     }
@@ -570,6 +529,48 @@ export function isDark(theme) {
             ? 'dark'
             : 'light'
     }
-    console.log('isDark:', theme)
     return theme === 'dark'
+}
+
+/**
+ * @function genQrCode
+ * @param {HTMLElement} parent
+ * @param {string} data
+ * @param {object} [extraOptions]
+ * @return {QRCodeStyling}
+ */
+export async function genQrCode(parent, data, extraOptions) {
+    // console.debug('parent.clientWidth:', parent.clientWidth)
+    console.debug('%c genQrCode - Generate New QR Code:', 'color: Lime', data)
+    const { options } = await chrome.storage.sync.get(['options'])
+    // console.debug('genQrCode:', options)
+    const qrCodeOptions = {
+        width: parent.clientWidth,
+        height: parent.clientWidth,
+        type: 'canvas',
+        data: data,
+        margin: 0,
+        dotsOptions: { color: options.dotsColor, type: 'dots' },
+        cornersDotOptions: { color: options.innerCorner, type: 'dot' },
+        cornersSquareOptions: {
+            color: options.outCorner,
+            type: 'extra-rounded',
+        },
+        backgroundOptions: { color: isDark() ? '#212429' : '#fff' },
+        imageOptions: { crossOrigin: 'anonymous', imageSize: 0.2, margin: 1 },
+    }
+    // qrCodeOptions.qrOptions = {
+    //     typeNumber: 0,
+    //     mode: 'Byte',
+    //     errorCorrectionLevel: 'Q',
+    // }
+    Object.assign(qrCodeOptions, extraOptions)
+    // console.debug('qrCodeOptions:', qrCodeOptions)
+    const qrCode = new QRCodeStyling(qrCodeOptions)
+    parent.innerHTML = ''
+    qrCode.append(parent)
+    parent.onclick = () => {
+        qrCode.download({ name: 'qr-code', extension: 'png' })
+    }
+    return qrCode
 }
