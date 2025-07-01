@@ -12,21 +12,34 @@
 # QR Code Extension
 
 Modern Chrome Web Extension and Firefox Browser Addon for automatically
-generating a QR Codes for the current site or instantly create a custom code.
+generating a QR Codes for the current site or to instantly create a custom code.
 
+- [Download](#download)
 - [Features](#features)
+  - [Upcoming](#upcoming)
 - [Configuration](#configuration)
-- [Template Notes](#template-notes)
 - [Development](#development)
 - [Contributing](#Contributing)
+
+## Download
+
+> [!WARNING]  
+> Until published you must manually install a
+> [GitHub Release](https://github.com/cssnr/qr-code-extension/releases/latest).
 
 ## Features
 
 - Automatic QR Code for Current URL
 - Type Anything for Custom Code
-- Upcoming Customization Options
+- Side Panel with Optional Tab Permissions
 
 Uses QR Code Styling: https://github.com/kozakdenys/qr-code-styling
+
+### Upcoming
+
+- More QR Code Customization Options
+- Context Menu Options to Create Codes
+- Extension Panel for Customizing Codes
 
 ## Configuration
 
