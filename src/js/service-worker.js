@@ -17,50 +17,7 @@ chrome.contextMenus?.onClicked.addListener(onClicked)
 chrome.commands?.onCommand.addListener(onCommand)
 chrome.runtime.onMessage.addListener(onMessage)
 chrome.storage.onChanged.addListener(onChanged)
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
-    if (!changeInfo.url) return
-    console.debug(`changeInfo:`, changeInfo)
-    if (changeInfo.url === 'about:newtab') return
-    // if (changeInfo.status === 'loading') return
-
-    chrome.runtime.sendMessage({
-        type: 'onUpdated',
-        changeInfo: changeInfo,
-        tab: tab,
-    })
-
-    // console.debug('changeInfo.url:', changeInfo.url)
-    // if (!changeInfo.url) return
-    //
-    // chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    //     console.debug('tab:', tab)
-    //     console.debug('tab.url:', tab.url)
-    //     if (tabs.length && tabs[0].id === tabId) {
-    //         chrome.runtime.sendMessage({
-    //             type: 'urlChanged',
-    //             tab: tab,
-    //             changeInfo: changeInfo,
-    //         })
-    //     }
-    // })
-
-    // chrome.permissions.contains({ permissions: ['tabs'] }, (has) => {
-    //     if (!has) return
-    //
-    //     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    //         console.debug('tab:', tab)
-    //         console.debug('tab.url:', tab.url)
-    //         if (tabs.length && tabs[0].id === tabId) {
-    //             chrome.runtime.sendMessage({
-    //                 type: 'urlChanged',
-    //                 url: changeInfo.url,
-    //             })
-    //         }
-    //     })
-    // })
-})
+chrome.tabs.onUpdated.addListener(onUpdated)
 
 /**
  * On Installed Callback
@@ -247,6 +204,25 @@ function onChanged(changes, namespace) {
 }
 
 /**
+ * On Updated Callback
+ * @function onUpdated
+ * @param {number} tabId
+ * @param {chrome.tabs.TabChangeInfo} changeInfo
+ * @param {chrome.tabs.Tab} tab
+ */
+function onUpdated(tabId, changeInfo, tab) {
+    console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
+    if (!changeInfo.url) return
+    console.debug(`changeInfo.url:`, changeInfo.url)
+    if (changeInfo.url === 'about:newtab') return
+    chrome.runtime.sendMessage({
+        type: 'onUpdated',
+        changeInfo: changeInfo,
+        tab: tab,
+    })
+}
+
+/**
  * Create Context Menus
  * @function createContextMenus
  */
@@ -263,9 +239,9 @@ function createContextMenus() {
         [['link', 'image', 'audio', 'video'], 'separator'],
         [['all'], 'separator'],
         [['all'], 'openSidePanel', 'Open Side Panel'],
-        [['all'], 'openExtPanel', 'Open Extension Panel'],
-        [['all'], 'openPage', 'Open Extension Page'],
-        [['all'], 'separator'],
+        // [['all'], 'openExtPanel', 'Open Extension Panel'],
+        // [['all'], 'openPage', 'Open Extension Page'],
+        // [['all'], 'separator'],
         [['all'], 'openPopup', 'Open Popup'],
         [['all'], 'openOptions', 'Open Options'],
     ]

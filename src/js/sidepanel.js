@@ -29,6 +29,9 @@ document
 document
     .querySelectorAll('.close-panel')
     .forEach((el) => el.addEventListener('click', closePanel))
+document
+    .querySelectorAll('[data-bs-toggle="tooltip"]')
+    .forEach((el) => new bootstrap.Tooltip(el))
 
 const qrCodeEl = document.getElementById('qr-code')
 const hostnameInput = document.getElementById('hostname')
@@ -104,6 +107,9 @@ async function tabChange(sourceTab) {
         currentWindow: true,
         active: true,
     })
+    // console.debug('tab:', tab)
+
+    // TODO: Cleanup Side Panel Update Logic...
     if (sourceTab && tab.windowId !== sourceTab.windowId) {
         console.debug(`${tab.windowId} != ${sourceTab.windowId}`)
         console.debug('%c tabChange Rejected - DIFFERENT WINDOW', 'color: Red')
@@ -111,6 +117,7 @@ async function tabChange(sourceTab) {
     }
     if (!tab.url) {
         hostnameInput.textContent = 'No URL for Tab'
+        qrCodeEl.innerHTML = ''
         console.debug('%c tabChange Rejected - NO URL', 'color: Red')
         return
     }
@@ -119,13 +126,6 @@ async function tabChange(sourceTab) {
         return
     }
     currentUrl = tab.url
-    // console.debug('tab:', tab)
-    // console.debug('tab.url:', tab.url)
-    if (tab.url) {
-        hostnameInput.textContent = tab.url
-        genQrCode(qrCodeEl, tab.url)
-    } else {
-        qrCodeEl.innerHTML = ''
-        hostnameInput.textContent = 'No URL for Tab'
-    }
+    hostnameInput.textContent = tab.url
+    genQrCode(qrCodeEl, tab.url)
 }
