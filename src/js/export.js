@@ -334,8 +334,8 @@ export async function onRemoved(permissions) {
  */
 export async function openExtPanel(
     url = '/html/panel.html',
-    width = 720,
-    height = 480,
+    width = 420,
+    height = 600,
     type = 'panel'
 ) {
     console.debug(`openExtPanel: ${url}`, width, height)
@@ -435,78 +435,6 @@ export function showToast(message, type = 'primary') {
 }
 
 /**
- * Inject Function into Current Tab with args
- * @function injectFunction
- * @param {Function} func
- * @param {Array} [args]
- * @return {Promise<chrome.scripting.InjectionResult.result>}
- */
-export async function injectFunction(func, args) {
-    console.debug('injectFunction:', func, args)
-    try {
-        const [tab] = await chrome.tabs.query({
-            currentWindow: true,
-            active: true,
-        })
-        const results = await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            injectImmediately: true,
-            func: func,
-            args: args,
-        })
-        console.debug('injectFunction results:', results)
-        if (results[0]?.error) {
-            // noinspection JSUnresolvedReference
-            console.log('injectFunction error:', results[0].error)
-        }
-        return results[0]?.result
-    } catch (e) {
-        console.log(e)
-    }
-}
-
-/**
- * Copy Text of ctx.linkText or from Active Element
- * Note: Chrome does not support ctx.linkText
- * @function copyActiveElementText
- * @param {OnClickData} ctx
- */
-export function copyActiveElementText(ctx) {
-    console.debug('copyActiveElementText:', ctx)
-    // noinspection JSUnresolvedReference
-    let text =
-        ctx.linkText?.trim() ||
-        document.activeElement.innerText?.trim() ||
-        document.activeElement.title?.trim() ||
-        document.activeElement.firstElementChild?.alt?.trim() ||
-        document.activeElement.ariaLabel?.trim()
-    console.log('text:', text)
-    if (text?.length) {
-        navigator.clipboard.writeText(text).then()
-    } else {
-        console.log('%c No Text to Copy.', 'color: Yellow')
-    }
-}
-
-/**
- * Copy Image SRC of document.activeElement.querySelector img
- * Note: This is injected because Chrome SW has no DOM and requires offscreen
- * @function copyActiveImageSrc
- * @param {OnClickData} ctx
- */
-export function copyActiveImageSrc(ctx) {
-    console.debug('copyActiveImageSrc:', ctx.srcUrl)
-    navigator.clipboard.writeText(ctx.srcUrl).then()
-    // console.debug('copyActiveElementText:', ctx, document.activeElement)
-    // const img = document.activeElement.querySelector('img')
-    // if (!img?.src) {
-    //     return console.log('Image not found or no src.', img)
-    // }
-    // console.log('img.src:', img.src)
-    // navigator.clipboard.writeText(img.src).then()
-}
-
-/**
  * DeBounce Function
  * @function debounce
  * @param {Function} fn
@@ -544,9 +472,10 @@ export async function genQrCode(parent, data, extraOptions) {
     console.debug('%c genQrCode - Generate New QR Code:', 'color: Lime', data)
     const { options } = await chrome.storage.sync.get(['options'])
     // console.debug('genQrCode:', options)
+    const size = parent.clientWidth - 2
     const qrCodeOptions = {
-        width: parent.clientWidth,
-        height: parent.clientWidth,
+        width: size,
+        height: size,
         type: 'canvas',
         data: data,
         margin: 0,

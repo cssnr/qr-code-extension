@@ -69,8 +69,13 @@ async function closePanel(event) {
     }
 }
 
+/**
+ * On Message Callback
+ * @function onMessage
+ * @param {Object} message
+ */
 function onMessage(message) {
-    console.debug('onMessage:', message)
+    console.debug('sidepanel: onMessage:', message)
     if (message.type === 'onUpdated') {
         console.debug('%c onMessage - tabChange()', 'color: Yellow')
         console.debug('message.changeInfo:', message.changeInfo)

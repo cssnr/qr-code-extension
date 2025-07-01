@@ -1,15 +1,6 @@
 // JS Background Service Worker
 
-import {
-    activateOrOpen,
-    copyActiveElementText,
-    copyActiveImageSrc,
-    injectFunction,
-    openExtPanel,
-    openPopup,
-    openSidePanel,
-    githubURL,
-} from './export.js'
+import { openExtPanel, openPopup, openSidePanel, githubURL } from './export.js'
 
 chrome.runtime.onInstalled.addListener(onInstalled)
 chrome.runtime.onStartup.addListener(onStartup)
@@ -18,6 +9,8 @@ chrome.commands?.onCommand.addListener(onCommand)
 chrome.runtime.onMessage.addListener(onMessage)
 chrome.storage.onChanged.addListener(onChanged)
 chrome.tabs.onUpdated.addListener(onUpdated)
+
+let latestData
 
 /**
  * On Installed Callback
@@ -115,19 +108,14 @@ async function onClicked(ctx, tab) {
         chrome.runtime.openOptionsPage()
     } else if (ctx.menuItemId === 'openPopup') {
         await openPopup()
-    } else if (ctx.menuItemId === 'openPage') {
-        const url = chrome.runtime.getURL('/html/page.html')
-        await activateOrOpen(url)
-    } else if (ctx.menuItemId === 'openExtPanel') {
-        await openExtPanel()
     } else if (ctx.menuItemId === 'openSidePanel') {
         await openSidePanel()
-    } else if (ctx.menuItemId === 'copyText') {
-        console.debug('injectFunction: copy')
-        await injectFunction(copyActiveElementText, [ctx])
-    } else if (ctx.menuItemId === 'copySrc') {
-        console.debug('injectFunction: image')
-        await injectFunction(copyActiveImageSrc, [ctx])
+    } else if (ctx.menuItemId === 'qrCodeMedia') {
+        showQrCodePanel(ctx.srcUrl)
+    } else if (ctx.menuItemId === 'qrCodeLink') {
+        showQrCodePanel(ctx.linkUrl)
+    } else if (ctx.menuItemId === 'qrCodePage') {
+        showQrCodePanel(ctx.pageUrl)
     } else {
         console.error(`Unknown ctx.menuItemId: ${ctx.menuItemId}`)
     }
@@ -144,15 +132,12 @@ async function onCommand(command, tab) {
     if (command === 'openOptions') {
         // noinspection ES6MissingAwait
         chrome.runtime.openOptionsPage()
-    } else if (command === 'openPage') {
-        const url = chrome.runtime.getURL('/html/page.html')
-        await activateOrOpen(url)
     } else if (command === 'openExtPanel') {
         await openExtPanel()
     } else if (command === 'openSidePanel') {
         await openSidePanel()
     } else {
-        console.warn(`Unknown Command: ${command}`)
+        console.error(`Unknown Command: ${command}`)
     }
 }
 
@@ -164,7 +149,7 @@ async function onCommand(command, tab) {
  * @param {Function} sendResponse
  */
 function onMessage(message, sender, sendResponse) {
-    console.debug('onMessage:', message, sender)
+    console.debug('sw: onMessage:', message, sender)
     const tabId = message.tabId || sender.tab?.id
     if ('badgeText' in message && tabId) {
         console.debug(`tabId: ${tabId} text:`, message.badgeText)
@@ -173,8 +158,11 @@ function onMessage(message, sender, sendResponse) {
             tabId: tabId,
             text: message.badgeText,
         })
+        return sendResponse('Success.')
     }
-    sendResponse('Success.')
+    if ('getData' in message) {
+        return sendResponse(latestData)
+    }
 }
 
 /**
@@ -211,14 +199,20 @@ function onChanged(changes, namespace) {
  * @param {chrome.tabs.Tab} tab
  */
 function onUpdated(tabId, changeInfo, tab) {
-    console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
+    // console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
     if (!changeInfo.url) return
     console.debug(`changeInfo.url:`, changeInfo.url)
     if (changeInfo.url === 'about:newtab') return
-    chrome.runtime.sendMessage({
+    const message = {
         type: 'onUpdated',
         changeInfo: changeInfo,
         tab: tab,
+    }
+    chrome.runtime.sendMessage(message, (response) => {
+        console.debug(`response:`, response)
+        if (chrome.runtime.lastError) {
+            console.warn('sendMessage:', chrome.runtime.lastError.message)
+        }
     })
 }
 
@@ -231,21 +225,18 @@ function createContextMenus() {
         return console.debug('Skipping: chrome.contextMenus')
     }
     console.debug('createContextMenus')
-    chrome.contextMenus.removeAll()
     /** @type {Array[chrome.contextMenus.ContextType[], String, String]} */
     const contexts = [
-        [['link'], 'copyText', 'Copy Link Text'],
-        [['image', 'audio', 'video'], 'copySrc', 'Copy Source URL'],
-        [['link', 'image', 'audio', 'video'], 'separator'],
+        [['image', 'audio', 'video'], 'qrCodeMedia', 'QR Code for Media'],
+        [['link'], 'qrCodeLink', 'QR Code for Link'],
+        [['all'], 'qrCodePage', 'QR Code for Page'],
+        // [['page', 'link', 'image', 'audio', 'video'], 'separator'],
         [['all'], 'separator'],
         [['all'], 'openSidePanel', 'Open Side Panel'],
-        // [['all'], 'openExtPanel', 'Open Extension Panel'],
-        // [['all'], 'openPage', 'Open Extension Page'],
-        // [['all'], 'separator'],
         [['all'], 'openPopup', 'Open Popup'],
         [['all'], 'openOptions', 'Open Options'],
     ]
-    contexts.forEach(addContext)
+    chrome.contextMenus.removeAll().then(() => contexts.forEach(addContext))
 }
 
 /**
@@ -281,13 +272,6 @@ function addContext(context) {
  */
 async function setDefaultOptions(defaultOptions) {
     console.log('setDefaultOptions', defaultOptions)
-    // sites
-    // let { sites } = await chrome.storage.sync.get(['sites'])
-    // if (!sites) {
-    //     console.debug('initialize empty sync sites')
-    //     // noinspection ES6MissingAwait
-    //     chrome.storage.sync.set({ sites: [] })
-    // }
     chrome.storage.sync.get(['sites']).then((items) => {
         if (!items.sites) {
             console.debug('initialize empty sync sites')
@@ -313,4 +297,18 @@ async function setDefaultOptions(defaultOptions) {
         console.log('changed options:', options)
     }
     return options
+}
+
+function showQrCodePanel(data) {
+    console.debug('showQrCodePanel:', data)
+    latestData = data
+    // noinspection JSIgnoredPromiseFromCall
+    openExtPanel()
+    const message = { type: 'panelData', data: data }
+    chrome.runtime.sendMessage(message, (response) => {
+        console.debug(`response:`, response)
+        if (chrome.runtime.lastError) {
+            console.warn('sendMessage:', chrome.runtime.lastError.message)
+        }
+    })
 }
