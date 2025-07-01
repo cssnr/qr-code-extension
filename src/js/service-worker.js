@@ -2,7 +2,6 @@
 
 import {
     activateOrOpen,
-    checkPerms,
     copyActiveElementText,
     copyActiveImageSrc,
     injectFunction,
@@ -18,6 +17,7 @@ chrome.contextMenus?.onClicked.addListener(onClicked)
 chrome.commands?.onCommand.addListener(onCommand)
 chrome.runtime.onMessage.addListener(onMessage)
 chrome.storage.onChanged.addListener(onChanged)
+chrome.tabs.onUpdated.addListener(onUpdated)
 
 /**
  * On Installed Callback
@@ -31,9 +31,9 @@ async function onInstalled(details) {
         testNumber: 60,
         contextMenu: true,
         showUpdate: false,
-        dotsColor: '#ec633c',
-        outCorner: '#fdca0f',
-        innerCorner: '#ec633c',
+        dotsColor: '#0ecaf0',
+        outCorner: '#0d6efd',
+        innerCorner: '#0ecaf0',
     })
     console.debug('options:', options)
     if (options.contextMenu) {
@@ -41,14 +41,9 @@ async function onInstalled(details) {
     }
     const manifest = chrome.runtime.getManifest()
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        const hasPerms = await checkPerms()
-        if (hasPerms) {
-            // noinspection ES6MissingAwait
-            chrome.runtime.openOptionsPage()
-        } else {
-            const url = chrome.runtime.getURL('/html/permissions.html')
-            await chrome.tabs.create({ active: true, url })
-        }
+        // noinspection ES6MissingAwait
+        chrome.runtime.openOptionsPage()
+        // await chrome.tabs.create({ active: false, url: installURL })
     } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
         if (options.showUpdate) {
             if (manifest.version !== details.previousVersion) {
@@ -194,15 +189,37 @@ function onChanged(changes, namespace) {
         if (namespace === 'sync' && key === 'options' && oldValue && newValue) {
             if (oldValue.contextMenu !== newValue.contextMenu) {
                 if (newValue?.contextMenu) {
-                    console.log('%cEnabled contextMenu...', 'color: Lime')
+                    console.log('%c Enabled contextMenu...', 'color: Lime')
                     createContextMenus()
                 } else {
-                    console.log('%cDisabled contextMenu...', 'color: OrangeRed')
+                    console.log(
+                        '%c Disabled contextMenu...',
+                        'color: OrangeRed'
+                    )
                     chrome.contextMenus?.removeAll()
                 }
             }
         }
     }
+}
+
+/**
+ * On Updated Callback
+ * @function onUpdated
+ * @param {number} tabId
+ * @param {chrome.tabs.TabChangeInfo} changeInfo
+ * @param {chrome.tabs.Tab} tab
+ */
+function onUpdated(tabId, changeInfo, tab) {
+    console.debug(`tabs.onUpdated: ${tabId}:`, changeInfo, tab)
+    if (!changeInfo.url) return
+    console.debug(`changeInfo.url:`, changeInfo.url)
+    if (changeInfo.url === 'about:newtab') return
+    chrome.runtime.sendMessage({
+        type: 'onUpdated',
+        changeInfo: changeInfo,
+        tab: tab,
+    })
 }
 
 /**
@@ -222,9 +239,9 @@ function createContextMenus() {
         [['link', 'image', 'audio', 'video'], 'separator'],
         [['all'], 'separator'],
         [['all'], 'openSidePanel', 'Open Side Panel'],
-        [['all'], 'openExtPanel', 'Open Extension Panel'],
-        [['all'], 'openPage', 'Open Extension Page'],
-        [['all'], 'separator'],
+        // [['all'], 'openExtPanel', 'Open Extension Panel'],
+        // [['all'], 'openPage', 'Open Extension Page'],
+        // [['all'], 'separator'],
         [['all'], 'openPopup', 'Open Popup'],
         [['all'], 'openOptions', 'Open Options'],
     ]
@@ -252,7 +269,7 @@ function addContext(context) {
             type: context[3] || 'normal',
         })
     } catch (e) {
-        console.log('%cError Adding Context:', 'color: Yellow', e)
+        console.log('%c Error Adding Context:', 'color: Yellow', e)
     }
 }
 

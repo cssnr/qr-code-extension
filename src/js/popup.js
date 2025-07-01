@@ -1,24 +1,16 @@
 // JS for popup.html
 
 import {
-    checkPerms,
     debounce,
-    grantPerms,
-    injectFunction,
-    isDark,
+    genQrCode,
     linkClick,
     saveOptions,
     updateManifest,
     updateOptions,
     updatePlatform,
 } from './export.js'
-import QRCodeStyling from '../dist/qr-code-styling/qr-code-styling.js'
 
 document.addEventListener('DOMContentLoaded', initPopup)
-// noinspection JSCheckFunctionSignatures
-document
-    .querySelectorAll('.grant-permissions')
-    .forEach((el) => el.addEventListener('click', (e) => grantPerms(e, true)))
 // noinspection JSCheckFunctionSignatures
 document
     .querySelectorAll('a[href]')
@@ -44,7 +36,9 @@ hostnameInput.addEventListener('input', debounce(inputChange, 500))
  */
 async function initPopup() {
     console.debug('initPopup')
-    hostnameInput.focus()
+    requestAnimationFrame(() => {
+        hostnameInput.focus()
+    })
     // noinspection ES6MissingAwait
     updateManifest()
     // noinspection ES6MissingAwait
@@ -53,93 +47,35 @@ async function initPopup() {
         updateOptions(items.options)
     })
 
-    // Check Host Permissions
-    const hasPerms = await checkPerms()
-    if (!hasPerms) {
-        console.log('%cHost Permissions Not Granted', 'color: Red')
+    // // Check Permissions
+    // const hasPerms = await checkPerms()
+    // if (!hasPerms) {
+    //     console.log('%c Permissions Not Granted', 'color: Orange')
+    // }
+
+    const [tab] = await chrome.tabs.query({
+        currentWindow: true,
+        active: true,
+    })
+    console.debug('url:', tab.url)
+    console.debug('favIconUrl:', tab.favIconUrl)
+
+    if (!tab.url) {
+        return console.debug('%c initPopup - No: tab.url', 'color: Red')
     }
 
-    // Get Site Info
-    // TODO: Create a single function to inject and remove from content-script
-    const siteInfo = await injectFunction(getSiteInfo)
-    console.debug('siteInfo:', siteInfo)
-    if (!siteInfo) {
-        document
-            .querySelectorAll('.tab-perms')
-            .forEach((el) => el.classList.add('d-none'))
-        return console.log('%cNo Site Info', 'color: Orange')
-    }
+    // TODO: Use favicon Permission for Chrome...
+    const image = tab.favIconUrl?.startsWith('data:image')
+        ? tab.favIconUrl
+        : null
+    console.debug('image:', image)
 
-    // Process Data
-    console.debug('siteInfo.href:', siteInfo.href)
-    console.debug('siteInfo.favicon:', siteInfo.favicon)
-    hostnameInput.value = siteInfo.href
+    hostnameInput.value = tab.url
     hostnameInput.setSelectionRange(0, hostnameInput.value.length)
-    await genQrCode(siteInfo.href, siteInfo.favicon)
-    // qrCodeEl.querySelector('svg').classList.add('img-fluid')
+    await genQrCode(qrCodeEl, tab.url, { image })
 }
 
 async function inputChange(event) {
     console.debug('inputChange:', event)
-    qrCodeEl.innerHTML = ''
-    await genQrCode(hostnameInput.value)
-}
-
-/**
- * @function genQrCode
- * @param {string} data
- * @param {string} [image]
- * @return {QRCodeStyling}
- */
-async function genQrCode(data, image) {
-    const { options } = await chrome.storage.sync.get(['options'])
-    console.log('genQrCode:', options)
-    // const dark = isDark()
-    // console.log('isDark:', dark)
-    // const dotColor = dark ? '#fdca0f' : '#ec623c'
-    // const outCorner = dark ? '#ec623c' : '#fdca0f'
-    // const inCorner = dark ? '#fdca0f' : '#ec623c'
-    const styleOptions = {
-        width: 300,
-        height: 300,
-        type: 'canvas',
-        data: data,
-        image: image,
-        margin: 0,
-        dotsOptions: { color: options.dotsColor, type: 'dots' },
-        cornersDotOptions: { color: options.innerCorner, type: 'dot' },
-        cornersSquareOptions: {
-            color: options.outCorner,
-            type: 'extra-rounded',
-        },
-        backgroundOptions: { color: isDark() ? '#212429' : '#fff' },
-        imageOptions: { crossOrigin: 'anonymous', imageSize: 0.2, margin: 1 },
-    }
-    // styleOptions.qrOptions = {
-    //     typeNumber: 0,
-    //     mode: 'Byte',
-    //     errorCorrectionLevel: 'Q',
-    // }
-    const qrCode = new QRCodeStyling(styleOptions)
-    qrCode.append(qrCodeEl)
-    qrCodeEl.onclick = () => {
-        qrCode.download({ name: 'qr-code', extension: 'png' })
-    }
-}
-
-function getSiteInfo() {
-    const links = Array.from(document.querySelectorAll('link[rel~="icon"]'))
-        .map((link) => {
-            const size = link.getAttribute('sizes')
-            const sizeValue = size ? parseInt(size.split('x')[0]) : 0
-            return { href: link.href, size: sizeValue }
-        })
-        .sort((a, b) => b.size - a.size)
-    let favicon
-    if (links.length > 0) {
-        favicon = links[0].href
-    } else {
-        favicon = `${location.origin}/favicon.ico`
-    }
-    return { ...window.location, favicon }
+    await genQrCode(qrCodeEl, hostnameInput.value)
 }

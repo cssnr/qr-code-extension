@@ -12,27 +12,61 @@
 # QR Code Extension
 
 Modern Chrome Web Extension and Firefox Browser Addon for automatically
-generating a QR Codes for the current site or instantly create a custom code.
+generating a QR Codes for the current site or to instantly create a custom code.
 
+- [Download](#download)
 - [Features](#features)
+  - [Upcoming](#upcoming)
 - [Configuration](#configuration)
-- [Template Notes](#template-notes)
+- [Support](#support)
 - [Development](#development)
 - [Contributing](#Contributing)
+
+## Download
+
+> [!WARNING]  
+> Until published you must manually install a
+> [GitHub Release](https://github.com/cssnr/qr-code-extension/releases/latest).
 
 ## Features
 
 - Automatic QR Code for Current URL
 - Type Anything for Custom Code
-- Upcoming Customization Options
+- Side Panel with Optional Tab Permissions
 
 Uses QR Code Styling: https://github.com/kozakdenys/qr-code-styling
+
+### Upcoming
+
+- More QR Code Customization Options
+- Context Menu Options to Create Codes
+- Extension Panel for Customizing Codes
+
+> [!TIP]
+> Don't see your feature here?
+> Request one on the [Feature Request Discussion](https://github.com/cssnr/qr-code-extension/discussions/categories/feature-requests).
 
 ## Configuration
 
 You can pin the Addon by clicking the `Puzzle Piece`, find the Link Extractor icon, then;  
 **Chrome,** click the `Pin` icon.  
 **Firefox,** click the `Settings Wheel` and `Pin to Toolbar`.
+
+## Support
+
+For help using the web extension or to request features, see:
+
+- Q&A Discussion: https://github.com/cssnr/qr-code-extension/discussions/categories/q-a
+- Request a Feature: https://github.com/cssnr/qr-code-extension/discussions/categories/feature-requests
+
+If you are experiencing an issue/bug or getting unexpected results, you can:
+
+- Report an Issue: https://github.com/cssnr/qr-code-extension/issues
+- Chat with us on Discord: https://discord.gg/wXy6m2X8wY
+- Provide General Feedback: [https://cssnr.github.io/feedback/](https://cssnr.github.io/feedback/?app=Link%20Extractor)
+
+Logs can be found inspecting the page (Ctrl+Shift+I), clicking on the Console, and;
+Firefox: toggling Debug logs, Chrome: toggling Verbose from levels dropdown.
 
 # Development
 

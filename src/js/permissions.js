@@ -18,6 +18,9 @@ document
 document
     .querySelectorAll('a[href]')
     .forEach((el) => el.addEventListener('click', linkClick))
+document
+    .querySelectorAll('[data-bs-toggle="tooltip"]')
+    .forEach((el) => new bootstrap.Tooltip(el))
 
 /**
  * DOMContentLoaded
@@ -28,7 +31,7 @@ async function domContentLoaded() {
     // noinspection ES6MissingAwait
     updateManifest()
     checkPerms().then((hasPerms) => {
-        if (!hasPerms) console.log('%cMissing Host Permissions', 'color: Red')
+        if (!hasPerms) console.log('%c Missing Permissions', 'color: Red')
     })
 }
 
@@ -39,8 +42,10 @@ async function domContentLoaded() {
 async function onAdded(permissions) {
     console.debug('onAdded', permissions)
     const hasPerms = await checkPerms()
-    if (hasPerms) {
+    if (hasPerms && document.hasFocus()) {
         await chrome.runtime.openOptionsPage()
+    }
+    if (hasPerms) {
         window.close()
     }
 }
